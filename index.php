@@ -8,6 +8,23 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <?php
+    session_start();
+    require_once 'supabase_config.php';
+    
+    // If user is already logged in, redirect to home
+    if(isset($_SESSION['email'])) {
+        header("Location: home.php");
+        exit();
+    }
+    
+    if(isset($_GET['error'])) {
+        echo '<div class="error-message">'.$_GET['error'].'</div>';
+    }
+    if(isset($_GET['success'])) {
+        echo '<div class="success-message">'.$_GET['success'].'</div>';
+    }
+    ?>
     <div class="container" id="signup" style="display:none;">
       <h1 class="form-title">Register</h1>
       <form method="post" action="register.php">
@@ -41,14 +58,16 @@
 
     <div class="container" id="signIn">
         <h1 class="form-title">Login</h1>
-        <form method="post" action="register.php">
+        <form method="post" action="login.php">
           <div class="input-group">
-              <label for="email">Email</label>
-              <input type="email" name="email" id="email" placeholder="Email" required>
+              <i class="fas fa-envelope"></i>
+              <input type="email" name="email" id="loginEmail" placeholder="Email" required>
+              <label for="loginEmail">Email</label>
           </div>
           <div class="input-group">
-              <label for="password">Password</label>
-              <input type="password" name="password" id="password" placeholder="Password" required>
+              <i class="fas fa-lock"></i>
+              <input type="password" name="password" id="loginPassword" placeholder="Password" required>
+              <label for="loginPassword">Password</label>
           </div>
           <input type="submit" class="btn" value="Log in" name="signIn">
         </form>

@@ -8,8 +8,39 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deaf Unity Hub - Feel free to Learn American Sign Language</title>
     <link rel="stylesheet" href="home.css">
+    <style>
+        .success-message {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin: 20px auto;
+            max-width: 800px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: fadeOut 0.5s forwards;
+            animation-delay: 5s;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        @keyframes fadeOut {
+            from {opacity: 1;}
+            to {opacity: 0; display: none;}
+        }
+    </style>
 </head>
 <body>
+    <?php
+    // Display success message if it exists
+    if(isset($_SESSION['success_message'])) {
+        echo '<div class="success-message">' . htmlspecialchars($_SESSION['success_message']) . '</div>';
+        unset($_SESSION['success_message']); // Clear the message after displaying
+    }
+    ?>
     <header>
         <div class="container">
             <div class="logo">DeafUnityHub</div>

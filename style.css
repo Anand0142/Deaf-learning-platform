@@ -114,3 +114,25 @@ button:hover {
 .recover a:hover {
     text-decoration: underline;
 }
+
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px;
+    margin: 10px auto;
+    border-radius: 5px;
+    max-width: 400px;
+    text-align: center;
+    border: 1px solid #ef9a9a;
+}
+
+.success-message {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 10px;
+    margin: 10px auto;
+    border-radius: 5px;
+    max-width: 400px;
+    text-align: center;
+    border: 1px solid #a5d6a7;
+}

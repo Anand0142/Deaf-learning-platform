@@ -1,43 +1,54 @@
 <?php
-include 'connect.php';
+session_start();
+require_once 'supabase_config.php';
 
-if (isset($_POST['signUp'])) {
-    $firstName = $_POST['fName'];
-    $lastName = $_POST['lName'];
-    $email = $_POST['email'];
-    $password = md5($_POST['password']);
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signUp'])) {
+    // Validate and sanitize inputs
+    $firstName = filter_var($_POST['fName'], FILTER_SANITIZE_STRING);
+    $lastName = filter_var($_POST['lName'], FILTER_SANITIZE_STRING);
+    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+    $password = md5($_POST['password']); // Using MD5 for compatibility
 
-    $checkEmail = "SELECT * FROM users WHERE email='$email'";
-    $result = $conn->query($checkEmail);
-
-    if ($result->num_rows > 0) {
-        echo "Email Address Already Exists!";
-    } else {
-        $insertQuery = "INSERT INTO users (firstName, lastName, email, password) VALUES ('$firstName', '$lastName', '$email', '$password')";
-        if ($conn->query($insertQuery) === TRUE) {
-            header("Location: index.php");
-            exit();
-        } else {
-            echo "Error: " . $conn->error;
-        }
+    if (empty($firstName) || empty($lastName) || empty($email) || empty($password)) {
+        header("Location: index.php?error=All fields are required!");
+        exit();
     }
-}
 
-if (isset($_POST['signIn'])) {
-    $email = $_POST['email'];
-    $password = md5($_POST['password']);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        header("Location: index.php?error=Invalid email format!");
+        exit();
+    }
 
-    $sql = "SELECT * FROM users WHERE email='$email' AND password='$password'";
-    $result = $conn->query($sql);
+    // Check if email exists
+    $checkEmail = supabaseApi('/rest/v1/users?email=eq.' . urlencode($email), 'GET');
+    
+    if ($checkEmail['status'] === 200 && !empty($checkEmail['data'])) {
+        header("Location: index.php?error=Email Address Already Exists!");
+        exit();
+    }
 
-    if ($result->num_rows > 0) {
-        session_start();
-        $row = $result->fetch_assoc();
-        $_SESSION['email'] = $row['email'];
-        header("Location: home.php");
+    // Prepare user data
+    $userData = [
+        'firstName' => $firstName,
+        'lastName' => $lastName,
+        'email' => $email,
+        'password' => $password
+    ];
+
+    // Insert user into Supabase
+    $response = supabaseApi('/rest/v1/users', 'POST', $userData);
+
+    if ($response['status'] === 201) { // 201 Created
+        header("Location: index.php?success=Registration successful! Please login.");
         exit();
     } else {
-        echo "Not Found, Incorrect Email or Password";
+        $error = isset($response['data']['message']) ? $response['data']['message'] : 'Registration failed';
+        header("Location: index.php?error=" . urlencode($error));
+        exit();
     }
+} else {
+    // If accessed directly, redirect to index
+    header("Location: index.php");
+    exit();
 }
 ?>
